@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 const userSchema = new mongoose.Schema(
   {
+    role_id: {
+      type: Number,
+      enum: [1,2,3], // admin, user, farmer
+      default: 2,
+      required: true,
+    },
     email: {
       type: String,
       required: true,
@@ -16,6 +22,9 @@ const userSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
+    token: {
+      type: String
+    }
   },
   {
     timestamps: true,

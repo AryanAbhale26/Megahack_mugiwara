@@ -54,7 +54,7 @@ const Welcome = () => {
                                 {account.role_id && (
                                     <div className="flex justify-between">
                                         <span className="text-gray-500">Role:</span>
-                                        <span className="font-medium text-gray-800">{account.role_id === 1 ? "Admin" : "Employee"}</span>
+                                        <span className="font-medium text-gray-800">{account.role_id === 1 ? "Admin" : account.role_id === 2 ? "User": "Farmer"}</span>
                                     </div>
                                 )}
                             </div>

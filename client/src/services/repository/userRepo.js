@@ -19,17 +19,19 @@ export function login(email, password, navigate) {
                 password,
             });
 
-            if (response.data.success) {
-                toast.success("Login Successful..");
+            if (response.status === 200) {
+                toast.success(response.message);
                 const temp = {
-                    "_id": response.data.data.user._id,
-                    "username": response.data.data.user.username,
-                    "email": response.data.data.user.email,
-                    "token": response.data.data.accessToken,
-                    "role_id": response.data.data.user.role_id,
+                    "_id": response.data.user._id,
+                    "username": response.data.user.fullName,
+                    "email": response.data.user.email,
+                    "token": response.data.user.token,
+                    "role_id": response.data.user.role_id,
                 };
                 await dispatch(setAccount(temp));
-                navigate("/welcome")
+                if( temp.role_id === 2 ){
+                    navigate("/user/market");
+                }
 
             } else {
                 throw new Error(response.data.message);
@@ -42,28 +44,26 @@ export function login(email, password, navigate) {
     };
 }
 
-export function register(username, email, role_id, password, avatar, navigate) {
+export function register(fullName, email, role_id, password, navigate) {
     return async (dispatch) => {
         const loadingToast = toast.loading("Registering you...");
         try {
-            console.log("avatar in repo: ", avatar);
             const formData = {
-                username,
+                fullName,
                 email,
                 role_id,
                 password,
-                "avatar": avatar
             }
 
             const response = await apiConnector("POST", REGISTER, formData);
 
-            if (response.data.success) {
+            if (response.data) {
                 toast.success("Registration Successful..");
                 const temp = {
-                    "_id": response.data.data._id,
-                    "username": response.data.data.username,
-                    "email": response.data.data.email,
-                    "role_id": response.data.data.role_id,
+                    "_id": response.data.user._id,
+                    "username": response.data.user.fullName,
+                    "email": response.data.user.email,
+                    "role_id": response.data.user.role_id,
                 }
                 dispatch(setAccountAfterRegister(temp))
                 navigate("/login");
@@ -85,7 +85,7 @@ export function logout(navigate) {
         try {
             const response = await apiConnector("POST", LOGOUT, {});
 
-            if (response.data.success) {
+            if (response.status === 200) {
                 toast.success("Logout Successful..");
                 dispatch(LogOut());
                 navigate("/");

@@ -5,11 +5,11 @@ const { generateToken } = require("../lib/utils");
 
 const signup = async (req, resp) => {
   try {
-    console.log("Incoming request body:", req.body); // Debugging line
+    console.log("Incoming request body:", req.body);
 
-    const { fullName, email, password } = req.body;
+    const { fullName, email, password, role_id } = req.body;
 
-    if (!fullName || !email || !password) {
+    if (!fullName || !email || !password || !role_id) {
       return resp.status(400).json({ message: "All fields are required" });
     }
 
@@ -30,11 +30,12 @@ const signup = async (req, resp) => {
       fullName,
       email,
       password: hashedPassword,
+      role_id
     });
 
     await newUser.save(); // Save the new user
 
-    generateToken(newUser._id, resp); // Generate JWT token
+    // generateToken(newUser._id, resp); // Generate JWT token
 
     return resp.status(201).json({
       message: "User registered successfully",
@@ -42,6 +43,7 @@ const signup = async (req, resp) => {
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
+        role_id: newUser.role_id,
       },
     });
   } catch (error) {
@@ -52,7 +54,7 @@ const signup = async (req, resp) => {
 
 const loginUser = async (req, resp) => {
   try {
-    console.log("Incoming request body:", req.body);
+    // console.log("Incoming request body:", req.body);
 
     const { email, password } = req.body;
 
@@ -74,14 +76,18 @@ const loginUser = async (req, resp) => {
       return resp.status(400).json({ message: "Invalid credentials" });
     }
 
-    generateToken(user._id, resp);
+    const token = generateToken(user._id, resp);
+    user.token = token ;
+    await user.save({ validateBeforeSave: false });
 
     return resp.status(200).json({
       message: "Login successful",
       user: {
         _id: user._id,
+        token: user.token,
         fullName: user.fullName,
         email: user.email,
+        role_id: user.role_id,
         profilePic: user.profilePic || null,
       },
     });
@@ -94,6 +100,14 @@ const loginUser = async (req, resp) => {
 const logout = async (req, resp) => {
   try {
     resp.cookie("jwt", "", { maxAge: 0 });
+
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      return resp.status(404).json({ message: "User not found" });
+    }
+    user.token = undefined;
+    await user.save({ validateBeforeSave: false });
+
     return resp.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.error("Error in logout controller:", error.message);

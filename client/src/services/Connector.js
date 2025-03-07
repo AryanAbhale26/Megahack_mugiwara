@@ -4,17 +4,16 @@ import axios from "axios";
 const apiUrl = import.meta.env.VITE_API_BASE_URL;
 // Create axios instance with a base URL
 export const axiosInstance = axios.create({
-    baseURL: apiUrl || "http://localhost:3000/api",
+    baseURL: apiUrl || "http://localhost:5000/api/",
     headers: {
         "Content-Type": "application/json",
-    }
+    },
 });
 
 // API Connector Function
 export const apiConnector = (method, url, bodyData, headers, params) => {
     const accountData = JSON.parse(localStorage.getItem("account"));
     let token;
-
     if (accountData) {
         token = accountData.token;
     }

@@ -31,7 +31,7 @@ function Register() {
 
     const handleRegister = async (e) => {
         e.preventDefault();
-        dispatch(register(name, email, roleId, password, avatar, navigate));
+        dispatch(register(name, email, roleId, password, navigate));
     };
 
     return (
@@ -78,7 +78,7 @@ function Register() {
                                     </div>
 
                                     <div>
-                                        <label className="text-sm font-medium text-gray-700">Username</label>
+                                        <label className="text-sm font-medium text-gray-700">Fullname</label>
                                         <input
                                             type="text"
                                             className="w-full px-4 py-2 border bg-white border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
@@ -99,7 +99,8 @@ function Register() {
                                         >
                                             <option value="" disabled>Select Role</option>
                                             <option value="1">Admin</option>
-                                            <option value="2">Employee</option>
+                                            <option value="2">User</option>
+                                            <option value="3">farmer</option>
                                         </select>
                                     </div>
 
