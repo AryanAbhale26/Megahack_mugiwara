@@ -73,7 +73,9 @@ const loginUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials" });
     }
 
-    generateToken(user._id, res);
+    const token = generateToken(user._id, resp);
+    user.token = token ;
+    await user.save({ validateBeforeSave: false });
 
     return res.status(200).json({
       message: "Login successful",
@@ -81,6 +83,7 @@ const loginUser = async (req, res) => {
         _id: user._id,
         fullName: user.fullName,
         email: user.email,
+        token: user.token,
         role: user.role,
         location: user.role === "user" ? user.location : undefined,
       },
@@ -91,9 +94,22 @@ const loginUser = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
-  res.cookie("jwt", "", { maxAge: 0 });
-  return res.status(200).json({ message: "Logged out successfully" });
+const logout = async (req, resp) => {
+  try {
+    resp.cookie("jwt", "", { maxAge: 0 });
+
+    const user = await User.findById(req.user?._id);
+    if (!user) {
+      return resp.status(404).json({ message: "User not found" });
+    }
+    user.token = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    return resp.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Error in logout controller:", error.message);
+    return resp.status(500).json({ message: "Internal Server Error" });
+  }
 };
 
 const checkAuth = (req, res) => {

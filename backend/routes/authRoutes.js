@@ -13,7 +13,7 @@ const {
 
 router.post("/signup", signup);
 router.post("/login", loginUser);
-router.post("/logout", logout);
+router.post("/logout", protectRoute, logout);
 router.get("/check", protectRoute, checkAuth);
 
 // Admin-only route

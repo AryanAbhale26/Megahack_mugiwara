@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,6 +23,10 @@ const userSchema = new mongoose.Schema(
           return this.role === "user";
         },
       },
+    },
+    token: {
+      type: String,
+      required: true,
     },
   },
   { timestamps: true }
