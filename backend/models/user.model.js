@@ -1,34 +1,38 @@
 const mongoose = require("mongoose");
+const { type } = require("os");
+
 const userSchema = new mongoose.Schema(
   {
-    role_id: {
-      type: Number,
-      enum: [1,2,3], // admin, user, farmer
-      default: 2,
-      required: true,
-    },
-    email: {
+    email: { type: String, required: true, unique: true },
+    fullName: { type: String, required: true },
+    password: { type: String, required: true, minlength: 6 },
+    role: {
       type: String,
-      required: true,
-      unique: true,
+      enum: ["admin", "vendor", "user"],
+      default: "user",
     },
-    fullName: {
-      type: String,
-      required: true,
-      unique: true,
-    },
-    password: {
-      type: String,
-      required: true,
-      minlength: 6,
+    location: {
+      type: {
+        type: String,
+        enum: ["Point"], // GeoJSON type
+        default: "Point",
+      },
+      coordinates: {
+        type: [Number], // [longitude, latitude]
+        required: function () {
+          return this.role === "user";
+        },
+      },
     },
     token: {
-      type: String
-    }
+      type: String,
+      required: true,
+    },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
+
+userSchema.index({ location: "2dsphere" }); // Geospatial Index
+
 const User = mongoose.model("User", userSchema);
 module.exports = { User };
